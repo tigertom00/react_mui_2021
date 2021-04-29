@@ -1,32 +1,48 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// { tasks: [...] }
-
 export const taskSlice = createSlice({
   name: 'tasks',
   initialState: {
     tasks: [],
   },
   reducers: {
+    getTasks() {},
     setTasksReducer: (state, { payload }) => {
       state.tasks = payload;
     },
+    addTaskServer() {},
     addTaskReducer: (state, { payload }) => {
       state.tasks.push(payload);
     },
+    deleteTaskHandler() {},
     deleteTaskReducer: (state, { payload }) => {
       state.tasks = state.tasks.filter((t) => t.id !== payload);
     },
-    toggleReminderReducer: (state, { payload }) => {
-      state.tasks = state.tasks.map((task) =>
-        task.id === payload.id ? { ...task, reminder: payload.reminder } : task
-      );
+    toggleReminderReducer: {
+      reducer: (state, { payload }) => {
+        state.tasks = state.tasks.map((task) =>
+          task.id === payload.id
+            ? { ...task, reminder: payload.reminder }
+            : task
+        );
+      },
+      prepare: (value) => {
+        return {
+          payload: {
+            ...value,
+            reminder: !value.reminder,
+          },
+        };
+      },
     },
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {
+  taskToToggleReducer,
+  deleteTaskHandler,
+  addTaskServer,
+  getTasks,
   setTasksReducer,
   deleteTaskReducer,
   addTaskReducer,

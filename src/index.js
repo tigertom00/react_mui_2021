@@ -2,13 +2,22 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { positions, Provider as AlertProvider } from 'react-alert';
+import AlertTemplate from 'react-alert-template-mui';
 import { Provider } from 'react-redux';
 import store from './store/index';
+
+const alertOptions = {
+  position: positions.MIDDLE,
+  timeout: 3000,
+};
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <AlertProvider template={AlertTemplate} {...alertOptions}>
+        <App />
+      </AlertProvider>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')

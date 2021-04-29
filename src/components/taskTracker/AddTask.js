@@ -1,3 +1,7 @@
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import DateFnsUtils from '@date-io/date-fns';
+import moment from 'moment';
 import {
   Grid,
   TextField,
@@ -10,46 +14,40 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
-import React, { useState } from 'react';
-import useStyles from '../styles/styles';
-import moment from 'moment';
+import useStyles from '../../styles/styles';
+import { addTaskServer } from '../../store/slices/taskSlice';
 
-const AddTask = ({ onAdd }) => {
+const AddTask = () => {
+  const dispatch = useDispatch();
   const classes = useStyles();
 
+  // * Set Inputs
   const [text, setText] = useState('');
+  const [day, setDay] = useState();
+  const [reminder, setReminder] = useState(false);
 
-  const [day, setDay] = React.useState(
-    new Date().getFullYear() +
-      '-' +
-      (new Date().getMonth() + 1) +
-      '-' +
-      new Date().getDate()
-  );
   const handleDateChange = (date) => {
     const newDate = moment(date).format('YYYY-MM-DD');
     setDay(newDate);
   };
 
+  // * Handle Submit
   const onSubmit = (e) => {
     e.preventDefault();
-
-    if (!text) {
-      alert('Please Add Task');
-      return;
-    }
-
-    onAdd({ text, day, reminder });
-
+    // if (!text) {
+    //   alert('Please Add Task');
+    //   return;
+    // }
+    dispatch(addTaskServer({ text, day, reminder }));
     setText('');
     setReminder(false);
   };
 
-  const [reminder, setReminder] = useState(false);
-
   return (
-    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+    <MuiPickersUtilsProvider
+      utils={DateFnsUtils}
+      disableStrictModeCompat='true'
+    >
       <Card className={classes.addTask}>
         <form onSubmit={onSubmit}>
           <Grid container spacing={2}>
@@ -62,21 +60,10 @@ const AddTask = ({ onAdd }) => {
               margin='normal'
               value={text}
               onChange={(e) => setText(e.target.value)}
-              //   InputLabelProps={{
-              //     shrink: true,
-              //   }}
             />
-            {/* <TextField
-            id='day'
-            label='Day'
-            type='datetime-local'
-            defaultValue={'24-05-2021T10:30'}
-            className={classes.textField}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          /> */}
+
             <KeyboardDatePicker
+              id='day'
               margin='normal'
               label='Day'
               style={{ margin: 8 }}
@@ -88,6 +75,7 @@ const AddTask = ({ onAdd }) => {
                 'aria-label': 'change date',
               }}
             />
+
             <FormControlLabel
               control={<Checkbox color='primary' />}
               label='Set Reminder:'
