@@ -11,6 +11,7 @@ import {
   Button,
 } from '@material-ui/core';
 import { loginHandler } from '../../store/slices/authSlice';
+import { Redirect } from 'react-router';
 
 const useLocalStyles = makeStyles({
   card: {
@@ -29,65 +30,71 @@ const LoginForm = () => {
   // * Handle Submit
   const { register, handleSubmit } = useForm();
 
-  return (
-    <>
-      <Card className={LocalCls.card}>
-        <form
-          onSubmit={handleSubmit((data) => {
-            dispatch(loginHandler(data));
-          })}
-        >
-          <Grid container spacing={2} justify='center'>
-            <Grid item xs={12}>
-              <Typography
-                className={classes.trackerTitle}
-                variant='h5'
-                align='center'
-              >
-                Login Form{' '}
-                {auth.user === null
-                  ? ''
-                  : auth.user.username.charAt(0).toUpperCase() +
-                    auth.user.username.slice(1)}
-              </Typography>
+  if (auth.isLoading) {
+    return <h2>Loading...</h2>;
+  } else if (auth.isAuthenticated) {
+    return <Redirect to='/' />;
+  } else {
+    return (
+      <>
+        <Card className={LocalCls.card}>
+          <form
+            onSubmit={handleSubmit((data) => {
+              dispatch(loginHandler(data));
+            })}
+          >
+            <Grid container spacing={2} justify='center'>
+              <Grid item xs={12}>
+                <Typography
+                  className={classes.trackerTitle}
+                  variant='h5'
+                  align='center'
+                >
+                  Login Form{' '}
+                  {auth.user.email == null
+                    ? ''
+                    : auth.user.username.charAt(0).toUpperCase() +
+                      auth.user.username.slice(1)}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <TextField
+                  id='username'
+                  label='Username'
+                  placeholder='Username'
+                  style={{ marginTop: 0 }}
+                  fullWidth
+                  margin='normal'
+                  {...register('username')}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  id='password'
+                  label='Password'
+                  style={{ marginTop: 0 }}
+                  placeholder='Password'
+                  fullWidth
+                  margin='normal'
+                  {...register('password')}
+                />
+              </Grid>
+              <Grid item xs={12} align='center'>
+                <Button
+                  variant='contained'
+                  color='primary'
+                  style={{ marginBottom: 20 }}
+                  type='submit'
+                >
+                  Login
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item>
-              <TextField
-                id='username'
-                label='Username'
-                placeholder='Username'
-                style={{ marginTop: 0 }}
-                fullWidth
-                margin='normal'
-                {...register('username')}
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                id='password'
-                label='Password'
-                style={{ marginTop: 0 }}
-                placeholder='Password'
-                fullWidth
-                margin='normal'
-                {...register('password')}
-              />
-            </Grid>
-            <Grid item xs={12} align='center'>
-              <Button
-                variant='contained'
-                color='primary'
-                style={{ marginBottom: 20 }}
-                type='submit'
-              >
-                Login
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
-      </Card>
-    </>
-  );
+          </form>
+        </Card>
+      </>
+    );
+  }
 };
 
 export default LoginForm;

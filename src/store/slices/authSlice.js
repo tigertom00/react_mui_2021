@@ -7,7 +7,9 @@ export const authSlice = createSlice({
   initialState: {
     isAuthenticated: false,
     isLoading: false,
-    user: null,
+    user: {
+      dark_mode: false,
+    },
     tokens: {
       refresh_token: null,
       access_token: null,
@@ -15,7 +17,38 @@ export const authSlice = createSlice({
       // access: localStorage.getItem('access_token'),
     },
   },
+
   reducers: {
+    // toggleDarkModeHandler: (state, {payload}) => {
+    //   state.user.dark_mode = payload.dark_mode
+    // },
+
+    updateProfilePictureHandler: (state) => {},
+    UpdateUserHandler: (state, { payload }) => {
+      console.log('payload: ', payload);
+      state.isLoading = true;
+    },
+    UpdateUserReducer: (state, { payload }) => {
+      state.isLoading = false;
+      state.user = payload;
+    },
+    toggleDarkModeHandler: {
+      reducer: (state, { payload }) => {
+        state.user.dark_mode = payload.dark_mode;
+      },
+      prepare: (value) => {
+        return {
+          payload: {
+            ...value,
+            dark_mode: !value.dark_mode,
+          },
+        };
+      },
+    },
+    getUserHandler: (state) => {
+      state.isLoading = true;
+    },
+
     signUpHandler: (state) => {
       state.isLoading = true;
     },
@@ -25,7 +58,7 @@ export const authSlice = createSlice({
     clearAuthState: (state) => {
       state.isAuthenticated = false;
       state.isLoading = false;
-      state.user = null;
+      state.user = { dark_mode: false };
       state.tokens.refresh_token = null;
       state.tokens.access_token = null;
 
@@ -38,8 +71,9 @@ export const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_data');
       state.isLoading = false;
-      state.user = null;
+      state.user = { dark_mode: false };
       state.tokens.refresh_token = null;
       state.tokens.access_token = null;
     },
@@ -50,6 +84,7 @@ export const authSlice = createSlice({
       state.isLoading = false;
       state.isAuthenticated = true;
       state.user = payload.user;
+      state.user.dark_mode = payload.user.dark_mode;
       state.tokens.refresh_token = payload.refresh_token;
       state.tokens.access_token = payload.access_token;
       localStorage.setItem('access_token', payload.access_token);
@@ -81,6 +116,11 @@ export const authSlice = createSlice({
 });
 
 export const {
+  updateProfilePictureHandler,
+  UpdateUserReducer,
+  toggleDarkModeHandler,
+  UpdateUserHandler,
+  getUserHandler,
   logoutHandler,
   logoutReducer,
   loginReducer,

@@ -2,10 +2,36 @@ import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  paper: {
+    padding: theme.spacing(2),
+    margin: 'auto',
+    maxWidth: 800,
+    marginBottom: '20px',
+    background: theme.palette.type === 'dark' ? grey[700] : grey[200],
+  },
+  image: {
+    width: 254,
+    height: 254,
+  },
+  img: {
+    margin: 'auto',
+    display: 'block',
+    maxWidth: '100%',
+    maxHeight: '100%',
+  },
   container: {
     backgroundColor: theme.palette.background.paper,
   },
-
+  fullHeight: {
+    minHeight: '100vh',
+    maxWidth: '1200px',
+  },
+  paperFull: {
+    textAlign: '-webkit-center',
+  },
   testClass: {
     fontSize: '32px',
   },
@@ -20,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     margin: 'auto',
     maxWidth: 500,
-    background: grey[200],
+    background: theme.palette.type === 'dark' ? grey[700] : grey[200],
   },
   trackerTitle: {
     textDecoration: 'underline',

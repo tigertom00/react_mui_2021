@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { useForm } from 'react-hook-form';
 import { signUpHandler } from '../../store/slices/authSlice';
+import { Redirect } from 'react-router';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -51,6 +52,7 @@ const SignUpForm = () => {
   const classes = useStyles();
   const { register, handleSubmit } = useForm();
   const dispatch = useDispatch();
+  const auth = useSelector((state) => state.auth);
   //   const intl = useIntl();
   // const history = useHistory();
 
@@ -73,100 +75,105 @@ const SignUpForm = () => {
   //   history.push(_route);
   // }
   // };
-
-  return (
-    // <Page
-    //   pageTitle={intl.formatMessage({
-    //     id: 'sign_up',
-    //     defaultMessage: ' Sign up',
-    //   })}
-    //   onBackClick={() => {
-    //     history.goBack();
-    //   }}
-    // >
-    <Paper className={classes.paper} elevation={6}>
-      <div className={classes.container}>
-        <Typography component='h1' variant='h5'>
-          {/* {intl.formatMessage({ id: 'sign_up', defaultMessage: 'Sign up' })} */}
-          sign up
-        </Typography>
-        <form
-          className={classes.form}
-          onSubmit={handleSubmit((data) => {
-            console.log('registration data: ', data);
-            dispatch(signUpHandler(data));
-          })}
-        >
-          <TextField
-            variant='outlined'
-            margin='normal'
-            required
-            fullWidth
-            // label={intl.formatMessage({
-            //   id: 'username',
-            //   defaultMessage: 'Username',
-            // })}
-            label='username'
-            {...register('username')}
-            autoFocus
-          />
-          <TextField
-            variant='outlined'
-            margin='normal'
-            required
-            fullWidth
-            type='email'
-            // label={intl.formatMessage({
-            //   id: 'email',
-            //   defaultMessage: 'E-Mail',
-            // })}
-            label='email'
-            {...register('email')}
-            autoComplete='email'
-          />
-          <TextField
-            variant='outlined'
-            margin='normal'
-            required
-            fullWidth
-            {...register('password1')}
-            // label={intl.formatMessage({
-            //   id: 'password',
-            //   defaultMessage: 'Password',
-            // })}
-            label='password'
-            type='password'
-            autoComplete='current-password'
-          />
-          <TextField
-            variant='outlined'
-            margin='normal'
-            required
-            fullWidth
-            {...register('password2')}
-            // label={intl.formatMessage({
-            //   id: 'password_confirm',
-            //   defaultMessage: 'Confirm Password',
-            // })}
-            label='Confirm Password'
-            type='password'
-            autoComplete='current-password'
-          />
-          <Button
-            type='submit'
-            fullWidth
-            variant='contained'
-            color='primary'
-            className={classes.submit}
-          >
-            Sign up
+  if (auth.isLoading) {
+    return <h2>Loading...</h2>;
+  } else if (auth.isAuthenticated) {
+    return <Redirect to='/' />;
+  } else {
+    return (
+      // <Page
+      //   pageTitle={intl.formatMessage({
+      //     id: 'sign_up',
+      //     defaultMessage: ' Sign up',
+      //   })}
+      //   onBackClick={() => {
+      //     history.goBack();
+      //   }}
+      // >
+      <Paper className={classes.paper} elevation={6}>
+        <div className={classes.container}>
+          <Typography component='h1' variant='h5'>
             {/* {intl.formatMessage({ id: 'sign_up', defaultMessage: 'Sign up' })} */}
-          </Button>
-        </form>
-      </div>
-    </Paper>
-    // </Page>
-  );
+            sign up
+          </Typography>
+          <form
+            className={classes.form}
+            onSubmit={handleSubmit((data) => {
+              console.log('registration data: ', data);
+              dispatch(signUpHandler(data));
+            })}
+          >
+            <TextField
+              variant='outlined'
+              margin='normal'
+              required
+              fullWidth
+              // label={intl.formatMessage({
+              //   id: 'username',
+              //   defaultMessage: 'Username',
+              // })}
+              label='username'
+              {...register('username')}
+              autoFocus
+            />
+            <TextField
+              variant='outlined'
+              margin='normal'
+              required
+              fullWidth
+              type='email'
+              // label={intl.formatMessage({
+              //   id: 'email',
+              //   defaultMessage: 'E-Mail',
+              // })}
+              label='email'
+              {...register('email')}
+              autoComplete='email'
+            />
+            <TextField
+              variant='outlined'
+              margin='normal'
+              required
+              fullWidth
+              {...register('password1')}
+              // label={intl.formatMessage({
+              //   id: 'password',
+              //   defaultMessage: 'Password',
+              // })}
+              label='password'
+              type='password'
+              autoComplete='current-password'
+            />
+            <TextField
+              variant='outlined'
+              margin='normal'
+              required
+              fullWidth
+              {...register('password2')}
+              // label={intl.formatMessage({
+              //   id: 'password_confirm',
+              //   defaultMessage: 'Confirm Password',
+              // })}
+              label='Confirm Password'
+              type='password'
+              autoComplete='current-password'
+            />
+            <Button
+              type='submit'
+              fullWidth
+              variant='contained'
+              color='primary'
+              className={classes.submit}
+            >
+              Sign up
+              {/* {intl.formatMessage({ id: 'sign_up', defaultMessage: 'Sign up' })} */}
+            </Button>
+          </form>
+        </div>
+      </Paper>
+      // </Page>
+    );
+  }
 };
 
 export default SignUpForm;

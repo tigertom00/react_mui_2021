@@ -9,7 +9,7 @@ const LandingPage = () => {
   //   const dispatch = useDispatch();
   return (
     <>
-      <Typography variant='h3' align='center' style={{ marginTop: '200px' }}>
+      <Typography variant='h3' align='center' style={{ marginTop: '70px' }}>
         LandingPage
       </Typography>
     </>

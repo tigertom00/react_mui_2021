@@ -3,6 +3,10 @@ import axiosInstance from '../../../axios';
 // export function requestLogin(payload) {
 //   return axiosInstance.post('api/token/', payload);
 // }
+export function requestUpdateProfilePicture(payload) {
+  return axiosInstance.post(`api/users/upload/${payload.id}/`, payload);
+}
+
 export function requestLogin(payload) {
   return axiosInstance.post('dj-rest-auth/login/', payload);
 }
@@ -12,7 +16,7 @@ export function requestUserData() {
 }
 
 export function requestAccessToken(refreshToken) {
-  return axiosInstance.post('api/users/token/refresh/', refreshToken);
+  return axiosInstance.post('api/token/refresh/', refreshToken);
 }
 
 export function requestSignUP(payload) {
@@ -20,5 +24,9 @@ export function requestSignUP(payload) {
 }
 
 export function requestBlacklistToken(payload) {
-  return axiosInstance.post('api/users/logout/blacklist/', payload);
+  return axiosInstance.post('api/utils/blacklist/', payload);
+}
+
+export function requestUpdateUserData(payload) {
+  return axiosInstance.patch(`api/users/${payload.id}/`, payload);
 }

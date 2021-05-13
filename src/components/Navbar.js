@@ -1,29 +1,47 @@
 import React from 'react';
-// import { useDispatch } from 'react-redux';
+import { Link as RouterLink } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import {
   Typography,
   makeStyles,
   AppBar,
   Toolbar,
   IconButton,
-  InputBase,
   Badge,
   MenuItem,
   Menu,
-  fade,
+  Button,
 } from '@material-ui/core';
 import {
-  Menu as MenuIcon,
-  Search as SearchIcon,
   AccountCircle,
   Mail as MailIcon,
   Notifications as NotificationsIcon,
   MoreVert as MoreIcon,
 } from '@material-ui/icons';
+import { useSelector } from 'react-redux';
+import { firstLetterC } from './utils/utils';
+import {
+  logoutHandler,
+  toggleDarkModeHandler,
+} from '../store/slices/authSlice';
 
 const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
+    // marginBottom: '20px',
+    paddingBottom: '50px',
+  },
+  navLink: {
+    marginRight: theme.spacing(2),
+    '&:hover': {
+      background: theme.palette.common.white,
+      color: theme.palette.common.black,
+      // borderBottom: '2px solid',
+      // paddingBottom: '1px',
+      // textDecoration: 'underline',
+      // textDecoration
+      // textDecorationColor: theme.palette.primary.secondary,
+    },
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -34,59 +52,62 @@ const useStyles = makeStyles((theme) => ({
       display: 'block',
     },
   },
-  search: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(3),
-      width: 'auto',
-    },
-  },
-  searchIcon: {
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  // search: {
+  //   position: 'relative',
+  //   borderRadius: theme.shape.borderRadius,
+  //   backgroundColor: fade(theme.palette.common.white, 0.15),
+  //   '&:hover': {
+  //     backgroundColor: fade(theme.palette.common.white, 0.25),
+  //   },
+  //   marginRight: theme.spacing(2),
+  //   marginLeft: 0,
+  //   width: '100%',
+  //   [theme.breakpoints.up('sm')]: {
+  //     marginLeft: theme.spacing(3),
+  //     width: 'auto',
+  //   },
+  // },
+  // searchIcon: {
+  //   padding: theme.spacing(0, 2),
+  //   height: '100%',
+  //   position: 'absolute',
+  //   pointerEvents: 'none',
+  //   display: 'flex',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  // },
   inputRoot: {
     color: 'inherit',
   },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
-  },
+  // inputInput: {
+  //   padding: theme.spacing(1, 1, 1, 0),
+  //   // vertical padding + font size from searchIcon
+  //   paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+  //   transition: theme.transitions.create('width'),
+  //   width: '100%',
+  //   [theme.breakpoints.up('sm')]: {
+  //     width: '20ch',
+  //   },
+  // },
   sectionDesktop: {
     display: 'none',
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('sm')]: {
       display: 'flex',
     },
   },
   sectionMobile: {
     display: 'flex',
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('sm')]: {
       display: 'none',
     },
   },
 }));
 
 const Navbar = () => {
+  const auth = useSelector((state) => state.auth);
   const classes = useStyles();
+  const dispatch = useDispatch();
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -121,8 +142,29 @@ const Navbar = () => {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem
+        onClick={() =>
+          dispatch(
+            toggleDarkModeHandler({
+              id: auth.user.id,
+              dark_mode: auth.user.dark_mode,
+            })
+          ) + handleMenuClose()
+        }
+      >
+        {auth.user.dark_mode ? 'Light-Mode' : 'Dark-Mode'}
+      </MenuItem>
+      <hr />
+      <MenuItem
+        component={RouterLink}
+        to={'/user/profile'}
+        onClick={handleMenuClose}
+      >
+        Profile
+      </MenuItem>
+      <MenuItem onClick={() => dispatch(logoutHandler()) + handleMenuClose()}>
+        Logout
+      </MenuItem>
     </Menu>
   );
 
@@ -171,32 +213,38 @@ const Navbar = () => {
     <div className={classes.grow}>
       <AppBar position='static'>
         <Toolbar>
-          <IconButton
+          {/* <IconButton
             edge='start'
             className={classes.menuButton}
             color='inherit'
             aria-label='open drawer'
           >
             <MenuIcon />
-          </IconButton>
-          <Typography className={classes.title} variant='h6' noWrap>
-            Material-UI
+          </IconButton> */}
+          <Typography
+            className={classes.title}
+            variant='h6'
+            noWrap
+            component={RouterLink}
+            to='/'
+          >
+            {firstLetterC('hei') + ' '}
+            {auth.isAuthenticated
+              ? firstLetterC(auth.user.username)
+              : 'Anonymous '}
           </Typography>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
-            <InputBase
-              placeholder='Search…'
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </div>
+
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
+            <Button
+              className={classes.navLink}
+              variant='text'
+              color='inherit'
+              component={RouterLink}
+              to={'/tasktracker'}
+            >
+              Task Tracker
+            </Button>
             <IconButton aria-label='show 4 new mails' color='inherit'>
               <Badge badgeContent={4} color='secondary'>
                 <MailIcon />
@@ -207,27 +255,73 @@ const Navbar = () => {
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              edge='end'
-              aria-label='account of current user'
-              aria-controls={menuId}
-              aria-haspopup='true'
-              onClick={handleProfileMenuOpen}
-              color='inherit'
-            >
-              <AccountCircle />
-            </IconButton>
+            {auth.isAuthenticated ? (
+              <>
+                <IconButton
+                  edge='end'
+                  aria-label='account of current user'
+                  aria-controls={menuId}
+                  aria-haspopup='true'
+                  onClick={handleProfileMenuOpen}
+                  color='inherit'
+                >
+                  <AccountCircle />
+                </IconButton>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant='text'
+                  color='inherit'
+                  component={RouterLink}
+                  to={'/login'}
+                >
+                  Login
+                </Button>
+
+                <Button
+                  variant='text'
+                  color='inherit'
+                  component={RouterLink}
+                  to={'/register'}
+                >
+                  Signup
+                </Button>
+              </>
+            )}
           </div>
           <div className={classes.sectionMobile}>
-            <IconButton
-              aria-label='show more'
-              aria-controls={mobileMenuId}
-              aria-haspopup='true'
-              onClick={handleMobileMenuOpen}
-              color='inherit'
-            >
-              <MoreIcon />
-            </IconButton>
+            {auth.isAuthenticated ? (
+              <IconButton
+                aria-label='show more'
+                aria-controls={mobileMenuId}
+                aria-haspopup='true'
+                onClick={handleMobileMenuOpen}
+                color='inherit'
+              >
+                <MoreIcon />
+              </IconButton>
+            ) : (
+              <>
+                <Button
+                  variant='text'
+                  color='inherit'
+                  component={RouterLink}
+                  to={'/login'}
+                >
+                  Login
+                </Button>
+
+                <Button
+                  variant='text'
+                  color='inherit'
+                  component={RouterLink}
+                  to={'/register'}
+                >
+                  Signup
+                </Button>
+              </>
+            )}
           </div>
         </Toolbar>
       </AppBar>

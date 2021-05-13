@@ -8,6 +8,7 @@ import { watcherSaga } from './saga/rootSaga';
 import taskReducer from './slices/taskSlice';
 import authReducer from './slices/authSlice';
 import notifyReducer from './slices/notifySlice';
+import settingsReducer from './slices/settingsSlice';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -15,6 +16,7 @@ const reducer = combineReducers({
   tasks: taskReducer,
   auth: authReducer,
   notify: notifyReducer,
+  settings: settingsReducer,
 });
 
 const store = configureStore({
