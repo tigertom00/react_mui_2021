@@ -4,10 +4,9 @@ import {
   loginReducer,
   logoutReducer,
   refreshTokenHandler,
-  toggleDarkModeReducer,
   UpdateUserReducer,
 } from '../../slices/authSlice';
-import { showError } from '../../slices/notifySlice';
+import { showNotify, showNotifyJSON } from '../../slices/notifySlice';
 import {
   requestAccessToken,
   requestBlacklistToken,
@@ -17,6 +16,28 @@ import {
   requestUpdateUserData,
   requestUserData,
 } from './requestAuth';
+
+// const errorSerialized = (err) => {
+//   if (err.response.data.non_field_errors[0] !== '') {
+//     return {
+//       msg: err.response.data.non_field_errors[0],
+//       status: err.response.status,
+//       statusText: err.response.statusText,
+//     };
+//   } else if (err.response.data.text !== '') {
+//     return {
+//       msg: err.response.data.text,
+//       status: err.response.status,
+//       statusText: err.response.statusText,
+//     };
+//   } else {
+//     return {
+//       msg: 'No Message??????',
+//       status: err.response.status,
+//       statusText: err.response.statusText,
+//     };
+//   }
+// };
 
 export function* handleUpdateProfilePicture({ payload }) {
   try {
@@ -36,18 +57,8 @@ export function* handleUpdateUser({ payload }) {
     localStorage.setItem('user_data', JSON.stringify(data));
     yield put(UpdateUserReducer(data));
   } catch (err) {
-    if (err.response.status === 401) {
-      console.log('handle add task err', err.response);
-      yield put(refreshTokenHandler());
-    } else {
-      const error = {
-        status: err.response.status,
-        msg: err.response.data.text,
-        statusText: err.response.statusText,
-      };
-      yield put(showError(error));
-      console.log('handle err sent to show error: ', error);
-    }
+    yield put(showNotifyJSON(JSON.stringify(err.response)));
+    console.log('handle err sent to show error: ', err.response.data);
   }
 }
 
@@ -57,29 +68,28 @@ export function* handleGetUser() {
     localStorage.setItem('user_data', JSON.stringify(response.data[0]));
     yield put(refreshTokenHandler());
   } catch (err) {
-    if (err.response.status === 401) {
-      console.log('handle add task err', err.response);
-      yield put(refreshTokenHandler());
-    } else {
-      const error = {
-        status: err.response.status,
-        msg: err.response.data.text,
-        statusText: err.response.statusText,
-      };
-      yield put(showError(error));
-      console.log('handle err sent to show error: ', error);
-    }
+    yield put(showNotifyJSON(JSON.stringify(err.response)));
+    console.log('handle err sent to show error: ', err.response.data);
   }
 }
 
 export function* handleSignUp({ payload }) {
   try {
-    const signUpResponse = yield call(requestSignUP, payload);
-    const { data } = yield signUpResponse;
+    const response = yield call(requestSignUP, payload);
+    const { data } = yield response;
     localStorage.setItem('user_data', JSON.stringify(data.user));
+    console.log('res: ', response);
+    const notifyData = {
+      msg: 'Logged in Successfully!',
+      status: response.status,
+      statusText: response.statusText,
+    };
+    yield put(showNotify(notifyData));
     yield put(loginReducer(data));
   } catch (err) {
     console.log(err.response.data);
+    yield put(showNotifyJSON(JSON.stringify(err.response)));
+    console.log('handle err sent to show error: ', err.response.data);
   }
 }
 
@@ -88,10 +98,16 @@ export function* handleLogin({ payload }) {
     const response = yield call(requestLogin, payload);
     const { data } = response;
     localStorage.setItem('user_data', JSON.stringify(data.user));
-
+    const notifyData = {
+      msg: 'Logged in Successfully!',
+      status: response.status,
+      statusText: response.statusText,
+    };
+    yield put(showNotify(notifyData));
     yield put(loginReducer(data));
   } catch (err) {
-    console.log(err.response.data);
+    yield put(showNotifyJSON(JSON.stringify(err.response)));
+    console.log('handle err sent to show error: ', err.response.data);
   }
 }
 
@@ -129,8 +145,8 @@ export function* handleRefreshToken() {
       );
       yield put(logoutReducer());
     } else {
-      console.log('sent to showError ', err.response.data);
-      yield put(showError(err.response.data));
+      console.log('sent to showNotify ', err.response.data);
+      yield put(showNotifyJSON(JSON.stringify(err.response)));
     }
   }
 }
@@ -140,22 +156,11 @@ export function* handleBlacklistToken() {
     const refreshToken = {
       refresh_token: localStorage.getItem('refresh_token'),
     };
-    console.log('refresh token: ', refreshToken);
     const response = yield call(requestBlacklistToken, refreshToken);
     console.log('response from delete: ', response);
     yield put(logoutReducer());
   } catch (err) {
-    if (err.response.status === 401) {
-      console.log('handle add task err', err.response);
-      yield put(refreshTokenHandler());
-    } else {
-      const error = {
-        status: err.response.status,
-        msg: err.response.data.text,
-        statusText: err.response.statusText,
-      };
-      yield put(showError(error));
-      console.log('handle err sent to show error: ', error);
-    }
+    yield put(showNotifyJSON(JSON.stringify(err.response)));
+    console.log('handle err sent to show error: ', err.response.data);
   }
 }

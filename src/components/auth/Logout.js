@@ -7,6 +7,7 @@ import { logoutHandler } from '../../store/slices/authSlice';
 
 const Logout = () => {
   const dispatch = useDispatch();
+
   // const classes = useStyles();
   return (
     <>

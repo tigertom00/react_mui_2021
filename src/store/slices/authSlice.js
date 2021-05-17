@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { showError } from './notifySlice';
+import { showNotify, showNotifyJSON } from './notifySlice';
 import axiosInstance from '../../axios';
 
 export const authSlice = createSlice({
@@ -55,6 +55,9 @@ export const authSlice = createSlice({
     refreshTokenHandler: (state) => {
       state.isLoading = true;
     },
+    birthdayUpdateHandler: (state, { payload }) => {
+      state.user.date_of_birth = payload;
+    },
     clearAuthState: (state) => {
       state.isAuthenticated = false;
       state.isLoading = false;
@@ -69,13 +72,14 @@ export const authSlice = createSlice({
     },
     logoutReducer: (state, { payload }) => {
       state.isAuthenticated = false;
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user_data');
       state.isLoading = false;
       state.user = { dark_mode: false };
       state.tokens.refresh_token = null;
       state.tokens.access_token = null;
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_data');
+      axiosInstance.defaults.headers['Authorization'] = null;
     },
     loginHandler: (state) => {
       state.isLoading = true;
@@ -95,7 +99,10 @@ export const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(showError, (state) => {
+    builder.addCase(showNotify, (state) => {
+      state.isLoading = false;
+    });
+    builder.addCase(showNotifyJSON, (state) => {
       state.isLoading = false;
     });
   },
@@ -116,6 +123,7 @@ export const authSlice = createSlice({
 });
 
 export const {
+  birthdayUpdateHandler,
   updateProfilePictureHandler,
   UpdateUserReducer,
   toggleDarkModeHandler,

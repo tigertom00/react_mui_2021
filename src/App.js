@@ -12,6 +12,7 @@ import PrivateRoute from './components/utils/PrivateRoute';
 import LandingPage from './components/LandingPage';
 import TaskTracker from './components/taskTracker/TaskTracker';
 import Profile from './components/user/Profile';
+import Alert from './components/utils/Alert';
 import purple from '@material-ui/core/colors/purple';
 
 const App = () => {
@@ -35,12 +36,13 @@ const App = () => {
         <Paper elevation={0} square className={classes.paperFull}>
           <div className={classes.fullHeight}>
             <Navbar />
+            <Alert />
             <RouterSwitch>
-              <PrivateRoute exact path='/' component={LandingPage} />
+              <Route exact path='/' component={LandingPage} />
               <Route path='/login' component={LoginForm} />
               <Route path='/register' component={SignUpForm} />
               <PrivateRoute path='/user/profile' component={Profile} />
-              <PrivateRoute path='/tasktracker' component={TaskTracker} />
+              <PrivateRoute path='/task_tracker' component={TaskTracker} />
             </RouterSwitch>
           </div>
         </Paper>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
   Typography,
@@ -24,6 +24,7 @@ import {
   logoutHandler,
   toggleDarkModeHandler,
 } from '../store/slices/authSlice';
+import { showNotify } from '../store/slices/notifySlice';
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -52,30 +53,7 @@ const useStyles = makeStyles((theme) => ({
       display: 'block',
     },
   },
-  // search: {
-  //   position: 'relative',
-  //   borderRadius: theme.shape.borderRadius,
-  //   backgroundColor: fade(theme.palette.common.white, 0.15),
-  //   '&:hover': {
-  //     backgroundColor: fade(theme.palette.common.white, 0.25),
-  //   },
-  //   marginRight: theme.spacing(2),
-  //   marginLeft: 0,
-  //   width: '100%',
-  //   [theme.breakpoints.up('sm')]: {
-  //     marginLeft: theme.spacing(3),
-  //     width: 'auto',
-  //   },
-  // },
-  // searchIcon: {
-  //   padding: theme.spacing(0, 2),
-  //   height: '100%',
-  //   position: 'absolute',
-  //   pointerEvents: 'none',
-  //   display: 'flex',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  // },
+
   inputRoot: {
     color: 'inherit',
   },
@@ -107,6 +85,7 @@ const Navbar = () => {
   const auth = useSelector((state) => state.auth);
   const classes = useStyles();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -162,7 +141,11 @@ const Navbar = () => {
       >
         Profile
       </MenuItem>
-      <MenuItem onClick={() => dispatch(logoutHandler()) + handleMenuClose()}>
+      <MenuItem
+        onClick={() =>
+          dispatch(logoutHandler()) + handleMenuClose() + history.push('/login')
+        }
+      >
         Logout
       </MenuItem>
     </Menu>
@@ -240,8 +223,23 @@ const Navbar = () => {
               className={classes.navLink}
               variant='text'
               color='inherit'
+              onClick={() => {
+                const data = {
+                  msg: 'dette er et varsel!',
+                  status: 429,
+                  statusText: 'Hello world',
+                };
+                dispatch(showNotify(data));
+              }}
+            >
+              Show Alert
+            </Button>
+            <Button
+              className={classes.navLink}
+              variant='text'
+              color='inherit'
               component={RouterLink}
-              to={'/tasktracker'}
+              to={'/task_tracker'}
             >
               Task Tracker
             </Button>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -9,17 +9,25 @@ import {
   Button,
   TextField,
   makeStyles,
-  Input,
   SvgIcon,
 } from '@material-ui/core';
 import PublishIcon from '@material-ui/icons/Publish';
 import useStyles from '../../styles/styles';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import {
   getUserHandler,
-  updateProfilePictureHandler,
   UpdateUserHandler,
+  UpdateUserReducer,
+  birthdayUpdateHandler,
 } from '../../store/slices/authSlice';
+import axiosInstance from '../../axios';
+import MaterialUiPhoneNumber from 'material-ui-phone-number';
+import AdapterDateFns from '@date-io/date-fns';
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from '@material-ui/pickers';
+import moment from 'moment';
 
 const localUseStyles = makeStyles((theme) => ({
   input: {
@@ -34,6 +42,23 @@ const localUseStyles = makeStyles((theme) => ({
   margin: {
     margin: theme.spacing(3, 0, 2),
   },
+  halfWidth: {
+    width: '48%',
+  },
+  halfWidthLeft: {
+    width: '48%',
+    marginRight: theme.spacing(2),
+  },
+  halfWidthRight: {
+    width: '48%',
+    marginLeft: theme.spacing(1),
+  },
+  smallBox: {
+    width: '13%',
+  },
+  myProfile: {
+    justifyContent: 'center',
+  },
 }));
 
 const Profile = () => {
@@ -41,12 +66,32 @@ const Profile = () => {
   const classes = useStyles();
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm({ mode: 'onBlur' });
-  const { register: registerFile, handleSubmit: handleFileSubmit } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
 
-  const onFileChange = (e) => {
-    console.log(e.target.files);
+  const [profilePicture, setProfilePicture] = useState(null);
+
+  const handleBirthday = (newBirthdayValue) => {
+    const formatNewBirthdayValue =
+      moment(newBirthdayValue).format('YYYY-MM-DD');
+    setValue('date_of_birth', formatNewBirthdayValue);
+    dispatch(birthdayUpdateHandler(formatNewBirthdayValue));
   };
+
+  const onFileSubmit = (e) => {
+    e.preventDefault();
+    let formData = new FormData();
+    formData.append('profile_picture', profilePicture);
+    axiosInstance
+      .patch(`api/users/${auth.user.id}/`, formData)
+      .then((res) => {
+        localStorage.setItem('user_data', JSON.stringify(res.data));
+        dispatch(UpdateUserReducer(res.data));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <div className={classes.root}>
       <Paper className={classes.paper} elevation={6}>
@@ -79,14 +124,8 @@ const Profile = () => {
       </Paper>
 
       <Paper className={classes.paper} elevation={6}>
-        <Grid container spacing={2}>
-          <form
-            onSubmit={handleFileSubmit((data) => {
-              console.log('data: ', data);
-              console.log('data: ', data.file);
-              dispatch(UpdateUserHandler({ ...data, id: auth.user.id }));
-            })}
-          >
+        <Grid container spacing={2} justify='center'>
+          <form onSubmit={onFileSubmit}>
             <Grid item className={localClasses.margin}>
               <ButtonBase className={classes.image}>
                 <img
@@ -101,8 +140,9 @@ const Profile = () => {
               type='file'
               id='fileUploadButton'
               hidden
-              onChange={onFileChange}
-              // {...registerFile('profile_picture')}
+              onChange={(e) => {
+                setProfilePicture(e.target.files[0]);
+              }}
             />
             <label htmlFor={'fileUploadButton'}>
               <Button
@@ -156,8 +196,8 @@ const Profile = () => {
                     required
                     fullWidth
                     label='Display Name'
-                    defaultValue={auth.user.username}
-                    {...register('username')}
+                    defaultValue={auth.user.display_name}
+                    {...register('display_name')}
                     autoFocus
                   />
                   <TextField
@@ -166,10 +206,6 @@ const Profile = () => {
                     required
                     fullWidth
                     type='email'
-                    // label={intl.formatMessage({
-                    //   id: 'email',
-                    //   defaultMessage: 'E-Mail',
-                    // })}
                     label='Email Address'
                     defaultValue={auth.user.email}
                     {...register('email')}
@@ -202,10 +238,11 @@ const Profile = () => {
           >
             <form
               onSubmit={handleSubmit((data) => {
+                console.log('submit data: ', data);
                 dispatch(UpdateUserHandler({ ...data, id: auth.user.id }));
               })}
             >
-              <Grid item xs>
+              <Grid item container justify='space-between' xs>
                 <Typography gutterBottom variant='h3'>
                   Personal Info
                 </Typography>
@@ -216,7 +253,7 @@ const Profile = () => {
                   label='First Name'
                   defaultValue={auth.user.first_name}
                   {...register('first_name')}
-                  autoFocus
+                  // autoFocus
                 />
                 <TextField
                   fullWidth
@@ -225,17 +262,76 @@ const Profile = () => {
                   label='Last Name'
                   defaultValue={auth.user.last_name}
                   {...register('last_name')}
-                  autoFocus
                 />
-                <Button
-                  type='submit'
-                  variant='contained'
-                  color='primary'
-                  className={localClasses.floatRight}
-                >
-                  Save
-                </Button>
+                <MuiPickersUtilsProvider utils={AdapterDateFns}>
+                  <KeyboardDatePicker
+                    className={localClasses.halfWidth}
+                    margin='normal'
+                    inputVariant='outlined'
+                    // minDate={new Date('1900-01-01')}
+                    // maxDate={new Date('2020-01-01')}
+                    openTo='year'
+                    views={['year', 'month', 'date']}
+                    label='Birthday'
+                    format='dd . MM . yyyy'
+                    value={auth.user.date_of_birth}
+                    onChange={handleBirthday}
+                  />
+                </MuiPickersUtilsProvider>
+
+                <MaterialUiPhoneNumber
+                  className={localClasses.halfWidth}
+                  variant='outlined'
+                  margin='normal'
+                  label='Phone'
+                  name='phone'
+                  value={auth.user.phone}
+                  defaultCountry={'no'}
+                  onChange={(e) => {
+                    setValue('phone', e, { shouldValidate: true });
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  variant='outlined'
+                  margin='normal'
+                  label='Address'
+                  defaultValue={auth.user.address}
+                  {...register('address')}
+                />
+                <TextField
+                  className={localClasses.halfWidth}
+                  variant='outlined'
+                  margin='normal'
+                  label='City'
+                  defaultValue={auth.user.city}
+                  {...register('city')}
+                />
+                <TextField
+                  className={localClasses.halfWidth}
+                  variant='outlined'
+                  margin='normal'
+                  label='Country'
+                  defaultValue={auth.user.country}
+                  {...register('country')}
+                />
+                <TextField
+                  fullWidth
+                  variant='outlined'
+                  margin='normal'
+                  label='Website'
+                  defaultValue={auth.user.website}
+                  {...register('website')}
+                />
               </Grid>
+              <Button
+                type='submit'
+                variant='contained'
+                color='primary'
+                className={localClasses.floatRight}
+              >
+                Save
+              </Button>
             </form>
           </Grid>
         </Grid>

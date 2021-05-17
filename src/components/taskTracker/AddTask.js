@@ -23,7 +23,13 @@ const AddTask = () => {
 
   // * Set Inputs
   const [text, setText] = useState('');
-  const [day, setDay] = useState();
+  const [day, setDay] = useState(
+    new Date().getFullYear() +
+      '-' +
+      (new Date().getMonth() + 1) +
+      '-' +
+      new Date().getDate()
+  );
   const [reminder, setReminder] = useState(false);
 
   const handleDateChange = (date) => {

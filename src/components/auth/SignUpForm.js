@@ -103,7 +103,7 @@ const SignUpForm = () => {
               dispatch(signUpHandler(data));
             })}
           >
-            <TextField
+            {/* <TextField
               variant='outlined'
               margin='normal'
               required
@@ -115,7 +115,7 @@ const SignUpForm = () => {
               label='username'
               {...register('username')}
               autoFocus
-            />
+            /> */}
             <TextField
               variant='outlined'
               margin='normal'
